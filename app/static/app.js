@@ -1388,7 +1388,7 @@ function renderFilteredLogs() {
   });
 
   if (filtered.length === 0) {
-    logBox.innerHTML = `<div class="log-line" style="color: var(--text-muted); padding: 12px 0; text-align: center;">[暂无此类日志]</div>`;
+    logBox.innerHTML = `<div class="log-line" style="color: #64748b; padding: 12px 0; text-align: center;">[暂无此类日志]</div>`;
     return;
   }
 
@@ -1516,7 +1516,7 @@ async function initLogStream() {
 
 async function clearLogs() {
   allReceivedLogs = [];
-  document.getElementById("log-content").innerHTML = `<div class="log-line" style="color: var(--text-muted); padding: 12px 0; text-align: center;">[日志已彻底清空]</div>`;
+  document.getElementById("log-content").innerHTML = `<div class="log-line" style="color: #64748b; padding: 12px 0; text-align: center;">[日志已彻底清空]</div>`;
   
   // 联动后端持久化清空
   try {

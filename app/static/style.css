@@ -1001,8 +1001,8 @@ input:checked + .slider:before {
 .mac-dot-green { background: #10b981; }
 
 .log-content {
-  background: var(--log-terminal-bg);
-  color: var(--log-terminal-text);
+  background: #090d16;
+  color: #e2e8f0;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
   padding: 16px 18px;
@@ -1019,20 +1019,21 @@ input:checked + .slider:before {
   transition: background-color 0.2s ease;
   padding: 2px 4px;
   border-radius: 4px;
+  color: #e2e8f0;
 }
 
 .log-flash {
-  background-color: var(--log-flash);
+  background-color: rgba(59, 130, 246, 0.25);
 }
 
 .log-time {
-  color: var(--text-muted);
+  color: #64748b;
   margin-right: 8px;
   flex-shrink: 0;
 }
 
 .log-source {
-  color: var(--primary);
+  color: #60a5fa;
   margin-right: 8px;
   font-weight: 600;
   flex-shrink: 0;
@@ -1043,26 +1044,26 @@ input:checked + .slider:before {
 }
 
 .log-level-success {
-  color: var(--success);
+  color: #4ade80;
   font-weight: 500;
 }
 
 .log-level-error {
-  color: var(--danger);
+  color: #f87171;
   font-weight: 600;
-  background: var(--danger-bg);
+  background: rgba(239, 68, 68, 0.18);
   border-radius: 4px;
 }
 
 .log-level-warning {
-  color: var(--warning);
+  color: #fbbf24;
   font-weight: 500;
-  background: var(--warning-bg);
+  background: rgba(245, 158, 11, 0.15);
   border-radius: 4px;
 }
 
 .log-level-info {
-  color: var(--text-main);
+  color: #e2e8f0;
 }
 
 /* 全双工重复折叠徽标 Badge Repeat (x2, x99) */
