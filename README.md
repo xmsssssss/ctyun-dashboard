@@ -92,32 +92,18 @@ services:
 
 ---
 
-### 方式二：根据 Git 仓库在线构建部署（国内加速）
+### 方式二：本地源码快速构建运行（推荐国内服务器）
 
-无需手动 `git clone`，直接创建一个 `docker-compose.yml`：
+1. 克隆代码库：
+   ```bash
+   git clone https://github.com/xmsssssss/ctyun-dashboard.git
+   cd ctyun-dashboard
+   ```
 
-```yaml
-version: '3.8'
-
-services:
-  ctyun-dashboard:
-    build:
-      context: https://github.com/xmsssssss/ctyun-dashboard.git#main
-      dockerfile: Dockerfile
-    image: ctyun-dashboard:latest
-    container_name: ctyun-dashboard
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./data:/app/data
-```
-
-执行启动：
-```bash
-docker compose up -d --build
-```
-*(构建全程已预配置国内阿里云 Debian 软件源与 npmmirror 镜像源加速)*
+2. 启动服务 *(构建已预置阿里云 Debian 软件源与 npmmirror 依赖源加速)*：
+   ```bash
+   docker compose up -d --build
+   ```
 
 3. 访问系统：
    打开浏览器访问：**`http://你的服务器IP:8080`**
