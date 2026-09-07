@@ -745,7 +745,7 @@ header {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #cbd5e1;
+  background-color: var(--border-focus);
   transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 9999px;
 }
@@ -764,7 +764,7 @@ header {
 }
 
 input:checked + .slider {
-  background-color: #0f172a;
+  background-color: var(--accent);
 }
 
 input:checked + .slider:before {
