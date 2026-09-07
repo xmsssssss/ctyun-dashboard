@@ -590,7 +590,8 @@ async function toggleFeature(accId, featureKey, checked) {
 
 // 3. 添加/编辑账号
 function openAddAccountModal() {
-  document.getElementById("modal-account-title").innerText = "添加天翼云账号";
+  const titleEl = document.getElementById("modal-account-title-text") || document.getElementById("modal-account-title");
+  if (titleEl) titleEl.innerText = "添加天翼云账号";
   document.getElementById("acc-id").value = "";
   document.getElementById("acc-name").value = "";
   document.getElementById("acc-user").value = "";
@@ -602,7 +603,8 @@ function openAddAccountModal() {
 function editAccount(accId) {
   const acc = accounts.find(a => a.id === accId);
   if (!acc) return;
-  document.getElementById("modal-account-title").innerText = "编辑天翼云账号";
+  const titleEl = document.getElementById("modal-account-title-text") || document.getElementById("modal-account-title");
+  if (titleEl) titleEl.innerText = "编辑天翼云账号";
   document.getElementById("acc-id").value = acc.id;
   document.getElementById("acc-name").value = acc.name || "";
   document.getElementById("acc-user").value = acc.user || "";
