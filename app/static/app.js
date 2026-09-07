@@ -5,6 +5,78 @@ let autoScroll = true;
 let eventSource = null;
 let currentUser = null;
 let currentAuthToken = localStorage.getItem("ctyun_auth_token") || "";
+let currentViewMode = localStorage.getItem("ctyun_view_mode") || "grid";
+
+// 图标库 (内联轻量 SVG，统一风格与尺寸)
+const Icons = {
+  desktop: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>`,
+  pulse: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+  checkCircle: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+  clock: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  award: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>`,
+  refresh: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>`,
+  power: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>`,
+  gift: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect width="20" height="5" x="2" y="7"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>`,
+  settings: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+  edit: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>`,
+  trash: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
+  copy: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`,
+  launch: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`,
+  chevronDown: `<svg class="icon-svg icon-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`,
+  user: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  shield: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+  phone: `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`
+};
+
+// 主题切换函数
+function initTheme() {
+  const savedTheme = localStorage.getItem("ctyun_theme") || "light";
+  applyTheme(savedTheme);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute("data-theme") || "light";
+  const next = current === "dark" ? "light" : "dark";
+  applyTheme(next);
+}
+
+function applyTheme(theme) {
+  if (theme === "dark") {
+    document.documentElement.setAttribute("data-theme", "dark");
+    const sun = document.querySelector(".theme-icon-sun");
+    const moon = document.querySelector(".theme-icon-moon");
+    if (sun) sun.classList.add("hidden");
+    if (moon) moon.classList.remove("hidden");
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+    const sun = document.querySelector(".theme-icon-sun");
+    const moon = document.querySelector(".theme-icon-moon");
+    if (sun) sun.classList.remove("hidden");
+    if (moon) moon.classList.add("hidden");
+  }
+  localStorage.setItem("ctyun_theme", theme);
+}
+
+// 视图切换函数
+function setViewMode(mode) {
+  currentViewMode = mode;
+  localStorage.setItem("ctyun_view_mode", mode);
+  const gridBtn = document.getElementById("view-mode-grid-btn");
+  const listBtn = document.getElementById("view-mode-list-btn");
+  const container = document.getElementById("accounts-container");
+  if (gridBtn && listBtn && container) {
+    if (mode === "list") {
+      gridBtn.classList.remove("active");
+      listBtn.classList.add("active");
+      container.classList.add("list-view");
+    } else {
+      listBtn.classList.remove("active");
+      gridBtn.classList.add("active");
+      container.classList.remove("list-view");
+    }
+  }
+  renderAccounts();
+}
 
 // 请求包装：自动携带 token
 async function authFetch(url, options = {}) {
@@ -16,6 +88,18 @@ async function authFetch(url, options = {}) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  initTheme();
+  const savedView = localStorage.getItem("ctyun_view_mode") || "grid";
+  if (savedView === "list") {
+    const gridBtn = document.getElementById("view-mode-grid-btn");
+    const listBtn = document.getElementById("view-mode-list-btn");
+    const container = document.getElementById("accounts-container");
+    if (gridBtn && listBtn && container) {
+      gridBtn.classList.remove("active");
+      listBtn.classList.add("active");
+      container.classList.add("list-view");
+    }
+  }
   checkCurrentUser();
   loadStatus();
   loadAccounts();
@@ -252,7 +336,7 @@ async function loadAccounts(isSilent = false) {
   }
 }
 
-// 渲染账号卡片（包含权限阻断提示、真实官方任务看板与保活详细监视）
+// 渲染账号卡片（包含权限阻断提示、真实官方任务看板与保活详细监视、视图切换与折叠面板）
 function renderAccounts() {
   const container = document.getElementById("accounts-container");
   container.innerHTML = "";
@@ -260,15 +344,15 @@ function renderAccounts() {
   // 如果未登录，严格阻断访客查看云电脑信息，只显示登录注册引导
   if (!currentUser) {
     container.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; padding: 48px 24px; background: var(--bg-secondary); border-radius: var(--radius); border: 1px dashed var(--border); box-shadow: var(--shadow);">
-        <div style="font-size: 40px; margin-bottom: 12px;">🔒</div>
-        <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">请登录后查看与管理云电脑</h3>
-        <p style="font-size: 13.5px; color: var(--text-muted); max-width: 500px; margin: 0 auto 20px auto;">
+      <div style="grid-column: 1 / -1; text-align: center; padding: 48px 24px; background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px dashed var(--border); box-shadow: var(--shadow-sm);">
+        <div style="margin-bottom: 12px; color: var(--primary); display: flex; justify-content: center;">${ICONS.shield}</div>
+        <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">请登录后查看与管理云电脑</h3>
+        <p style="font-size: 13.5px; color: var(--text-muted); max-width: 500px; margin: 0 auto 20px auto; line-height: 1.6;">
           为保障账号隐私安全与多用户隔离，未登录访客无法查看或添加云电脑。请登录已有账号，或免费注册新账号开启独立后台。
         </p>
         <div style="display: flex; gap: 12px; justify-content: center;">
-          <button class="btn btn-primary" onclick="openAuthModal('login')">🔑 立即登录</button>
-          <button class="btn" onclick="openAuthModal('register')">✨ 免费注册新用户</button>
+          <button class="btn btn-primary" onclick="openAuthModal('login')">${ICONS.key} 立即登录</button>
+          <button class="btn" onclick="openAuthModal('register')">${ICONS.user} 免费注册新用户</button>
         </div>
       </div>
     `;
@@ -277,9 +361,10 @@ function renderAccounts() {
 
   if (!accounts || accounts.length === 0) {
     container.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted); background: var(--bg-secondary); border-radius: var(--radius); border: 1px dashed var(--border);">
-        <p style="font-size: 15px; margin-bottom: 12px;">当前账号下暂无配置云电脑</p>
-        <button class="btn btn-primary" onclick="openAddAccountModal()">➕ 立即添加你的第一台云电脑</button>
+      <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px dashed var(--border);">
+        <div style="display: flex; justify-content: center; margin-bottom: 12px; color: var(--text-muted);">${ICONS.server}</div>
+        <p style="font-size: 15px; margin-bottom: 16px; font-weight: 500;">当前账号下暂无配置云电脑</p>
+        <button class="btn btn-primary" onclick="openAddAccountModal()">${ICONS.plus} 立即添加你的第一台云电脑</button>
       </div>
     `;
     return;
@@ -291,12 +376,12 @@ function renderAccounts() {
 
     const isOnline = acc.stats?.keepAliveStatus === "online" || acc.liveMetrics?.status === "online";
     const statusBadge = isOnline
-      ? `<span class="badge badge-online">🟢 保活长连接在线</span>`
-      : `<span class="badge badge-offline">⚪ 未连接</span>`;
+      ? `<span class="badge badge-online"><span style="display:inline-block;width:7px;height:7px;background:#16a34a;border-radius:50%;margin-right:5px;"></span>长连接在线</span>`
+      : `<span class="badge badge-offline"><span style="display:inline-block;width:7px;height:7px;background:#94a3b8;border-radius:50%;margin-right:5px;"></span>未连接</span>`;
 
     const boundBadge = acc.bound
-      ? `<span class="badge" style="background: rgba(22,163,74,0.12); color: #16a34a; border: 1px solid rgba(22,163,74,0.25);">已绑设备</span>`
-      : `<span class="badge badge-warning" style="cursor: pointer;" onclick="openSmsModal('${acc.id}')">⚠️ 待短信绑定</span>`;
+      ? `<span class="badge" style="background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border);">已绑设备</span>`
+      : `<span class="badge badge-warning" style="cursor: pointer;" onclick="openSmsModal('${acc.id}')">待短信绑定</span>`;
 
     const maskPhone = acc.user.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2");
     const devCode = acc.deviceCode || "未生成";
@@ -313,7 +398,7 @@ function renderAccounts() {
       userPoints: acc.stats?.points || 0
     };
 
-    // 官方任务渲染（温润柔和配色）
+    // 官方任务渲染（优雅卡片规范）
     let officialTaskHtml = '';
     if (m.officialTasks && m.officialTasks.length > 0) {
       officialTaskHtml = m.officialTasks.map(t => {
@@ -326,21 +411,25 @@ function renderAccounts() {
         }
 
         return `
-          <div style="background: #ffffff; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-            <div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 6px;">
-              <span>🎯 <b style="color:#0f172a;">${t.name}</b> <span style="color:#2563eb; font-weight:600;">(+${t.points}分)</span></span>
-              <span style="color: ${isDone ? '#16a34a' : '#d97706'}; font-weight: 700;">
-                ${isDone ? '✅ 已达成' : '⏳ ' + progressText}
+          <div class="task-item-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; margin-bottom: 6px;">
+              <span style="display: flex; align-items: center; gap: 6px;">
+                <span style="color: var(--accent);">${ICONS.target}</span>
+                <b style="color: var(--text-main);">${escapeHtml(t.name)}</b>
+                <span style="color: var(--accent); font-weight: 600;">(+${t.points}分)</span>
+              </span>
+              <span style="color: ${isDone ? 'var(--success)' : 'var(--warning)'}; font-weight: 700; font-size: 11.5px;">
+                ${isDone ? '已达成' : progressText}
               </span>
             </div>
-            <div style="background: #e2e8f0; height: 6px; border-radius: 4px; overflow: hidden;">
-              <div style="background: ${isDone ? '#16a34a' : '#2563eb'}; width: ${percent}%; height: 100%; transition: width 0.3s ease;"></div>
+            <div class="task-progress-track">
+              <div class="task-progress-fill" style="width: ${percent}%; ${isDone ? 'background: var(--success);' : ''}"></div>
             </div>
           </div>
         `;
       }).join('');
     } else {
-      officialTaskHtml = `<div style="font-size: 12px; color: var(--text-muted); text-align: center; padding: 6px 0;">正在同步天翼云官方任务中心数据...</div>`;
+      officialTaskHtml = `<div style="font-size: 12px; color: var(--text-muted); text-align: center; padding: 8px 0;">正在同步天翼云官方任务中心数据...</div>`;
     }
 
     card.innerHTML = `
@@ -353,95 +442,117 @@ function renderAccounts() {
               ${statusBadge}
             </h3>
             <div class="account-phone">
-              📱 ${maskPhone} &nbsp; ${boundBadge}
+              <span>${maskPhone}</span> &nbsp; ${boundBadge}
             </div>
           </div>
         </div>
-        <div style="display: flex; gap: 4px;">
-          <button class="btn btn-sm" onclick="editAccount('${acc.id}')" title="编辑账号">✏️</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteAccount('${acc.id}')" title="删除账号">🗑️</button>
+        <div style="display: flex; gap: 6px;">
+          <button class="btn btn-sm" onclick="editAccount('${acc.id}')" title="编辑配置与备注">${ICONS.edit}</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteAccount('${acc.id}')" title="移除此云电脑">${ICONS.trash}</button>
         </div>
       </div>
 
       <!-- 设备码 -->
       <div class="device-box">
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <span style="color: var(--text-muted);">设备:</span>
+        <div style="display: flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden;">
+          <span style="color: var(--text-muted); font-size: 11px;">设备码:</span>
           <span class="device-code-text" title="${devCode}">${devCode}</span>
         </div>
-        <button class="btn btn-sm" onclick="copyToClipboard('${devCode}')">复制</button>
+        <button class="btn btn-sm" style="flex-shrink: 0;" onclick="copyToClipboard('${devCode}')">复制</button>
       </div>
 
-      <!-- 📡 真实 WebSocket 保活心跳状态监视 -->
-      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 12px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-          <span style="color: #2563eb; font-weight: 700;">📡 长连接保活心跳详情</span>
-          <span style="color: var(--text-muted);">周期: <b>${m.keepAliveSeconds || 60}s</b> (倒计时: <b style="color: #16a34a;">${m.cycleCountdown || 60}s</b>)</span>
+      <!-- 快捷折叠：WebSocket 保活心跳状态详情 -->
+      <details class="accordion-detail" open>
+        <summary>
+          <span class="summary-title">
+            <span style="color: var(--accent);">${ICONS.wifi}</span> 长连接心跳监视
+          </span>
+          <span class="summary-meta">
+            周期 <b>${m.keepAliveSeconds || 60}s</b> (倒计时 <b style="color: var(--success);">${m.cycleCountdown || 60}s</b>)
+          </span>
+        </summary>
+        <div class="accordion-content">
+          <div style="line-height: 1.8;">
+            <div>目标设备: <span style="color: var(--text-main); font-weight: 600;">${escapeHtml(m.desktopName || '云电脑')} (${m.currentHost || '未连接'})</span></div>
+            <div>保活动作: <span style="color: var(--success); font-weight: 600;">${escapeHtml(m.lastHeartbeatResult || '正在建立心跳通道...')}</span></div>
+            <div>守护轮次: <span style="color: var(--accent); font-weight: 600;">${m.successCount || 0} 轮次</span></div>
+          </div>
         </div>
-        <div style="color: #475569; line-height: 1.7;">
-          <div>目标设备: <span style="color: #0f172a; font-weight: 600;">${escapeHtml(m.desktopName || '云电脑')} (${m.currentHost || '未连接'})</span></div>
-          <div>保活动作: <span style="color: #16a34a; font-weight: 600;">${escapeHtml(m.lastHeartbeatResult || '正在建立心跳通道...')}</span></div>
-          <div>成功次数: <span style="color: #2563eb; font-weight: 600;">${m.successCount || 0} 轮次</span></div>
-        </div>
-      </div>
+      </details>
 
-      <!-- 🏆 天翼云官方真实任务看板 (实时拉取官方数据) -->
-      <div style="display: flex; flex-direction: column; gap: 6px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700;">
-          <span style="color: #b45309;">🏆 官方任务中心实时进度</span>
-          <span style="color: #16a34a;">当前总积分: <b style="font-size:14px;">${m.userPoints || 0}</b></span>
+      <!-- 快捷折叠：天翼云官方任务看板 (实时拉取官方数据) -->
+      <details class="accordion-detail" open>
+        <summary>
+          <span class="summary-title">
+            <span style="color: var(--warning);">${ICONS.target}</span> 官方任务进度
+          </span>
+          <span class="summary-meta" style="color: var(--success); font-weight: 700;">
+            当前积分: ${m.userPoints || 0}
+          </span>
+        </summary>
+        <div class="accordion-content">
+          ${officialTaskHtml}
         </div>
-        ${officialTaskHtml}
-      </div>
+      </details>
 
       <!-- 功能开关 -->
       <div class="features-box">
         <div class="feature-row">
-          <span>📡 启用云电脑保活 (${m.keepAliveSeconds || 60}s周期长连接守护)</span>
+          <span style="display: flex; align-items: center; gap: 6px;">
+            <span style="color: var(--accent);">${ICONS.wifi}</span> 启用保活长连接守护 (${m.keepAliveSeconds || 60}s)
+          </span>
           <label class="switch">
             <input type="checkbox" ${f.keepAlive !== false ? 'checked' : ''} onchange="toggleFeature('${acc.id}', 'keepAlive', this.checked)">
             <span class="slider"></span>
           </label>
         </div>
         <div class="feature-row">
-          <span>📅 每日自动签到打卡</span>
+          <span style="display: flex; align-items: center; gap: 6px;">
+            <span style="color: var(--accent);">${ICONS.calendar}</span> 每日自动打卡签到
+          </span>
           <label class="switch">
             <input type="checkbox" ${f.autoSign !== false ? 'checked' : ''} onchange="toggleFeature('${acc.id}', 'autoSign', this.checked)">
             <span class="slider"></span>
           </label>
         </div>
         <div class="feature-row">
-          <span>🤖 AI 智能对话任务 (每日100分)</span>
+          <span style="display: flex; align-items: center; gap: 6px;">
+            <span style="color: var(--accent);">${ICONS.sparkles}</span> AI 智能对话任务 (每日100分)
+          </span>
           <label class="switch">
             <input type="checkbox" ${f.aiChat !== false ? 'checked' : ''} onchange="toggleFeature('${acc.id}', 'aiChat', this.checked)">
             <span class="slider"></span>
           </label>
         </div>
         <div class="feature-row">
-          <span>⏱️ 云电脑挂机1小时 (每日100分)</span>
+          <span style="display: flex; align-items: center; gap: 6px;">
+            <span style="color: var(--accent);">${ICONS.clock}</span> 云电脑挂机1小时任务 (每日100分)
+          </span>
           <label class="switch">
             <input type="checkbox" ${f.cloudHang !== false ? 'checked' : ''} onchange="toggleFeature('${acc.id}', 'cloudHang', this.checked)">
             <span class="slider"></span>
           </label>
         </div>
         <div class="feature-row">
-          <span>🎁 自动兑换/抽奖 (${acc.redeemConfig?.enabled ? '<b style=\"color:#16a34a\">已开</b>' : '未开'})</span>
-          <button class="btn btn-sm btn-warning" onclick="openRedeemModal('${acc.id}')">⚙️ 奖品与抽奖设置</button>
+          <span style="display: flex; align-items: center; gap: 6px;">
+            <span style="color: var(--accent);">${ICONS.gift}</span> 自动兑换/抽奖 (${acc.redeemConfig?.enabled ? '<b style="color:var(--success)">已开</b>' : '未开'})
+          </span>
+          <button class="btn btn-sm btn-warning" onclick="openRedeemModal('${acc.id}')">${ICONS.settings} 奖品与抽奖配置</button>
         </div>
       </div>
 
-      <!-- 快捷操作按钮 (现代化零冗余规范) -->
+      <!-- 快捷操作按钮 -->
       <div class="card-actions">
         <button class="btn btn-launch-full" onclick="launchWebDesktop('${acc.id}')" title="直接在独立弹窗中免密直通云电脑远程桌面">
-          <span>🚀 访问云电脑</span>
+          <span style="display:flex; align-items:center; gap:8px;">${ICONS.external} 访问云电脑</span>
           <span class="btn-subtext">免密直通桌面 ➔</span>
         </button>
         <div class="card-action-tools">
-          <button class="btn btn-tool" onclick="syncAccountTasks('${acc.id}')" title="一键极速执行今日全部任务 (打卡/AI对话/挂机)">🔄 一键同步任务</button>
-          <button class="btn btn-tool" onclick="openPowerModal('${acc.id}')" title="云电脑电源管理 (开机/重启/关机)">⚡ 电源管理</button>
-          <button class="btn btn-tool" onclick="openManualRedeemModal('${acc.id}')" title="根据当前积分手动兑换商品或抽奖">🎁 积分商城</button>
+          <button class="btn btn-tool" onclick="syncAccountTasks('${acc.id}')" title="一键极速执行今日全部任务 (打卡/AI对话/挂机)">${ICONS.refresh} 一键同步任务</button>
+          <button class="btn btn-tool" onclick="openPowerModal('${acc.id}')" title="云电脑电源管理 (开机/重启/关机)">${ICONS.zap} 电源管理</button>
+          <button class="btn btn-tool" onclick="openManualRedeemModal('${acc.id}')" title="根据当前积分手动兑换商品或抽奖">${ICONS.gift} 积分商城</button>
         </div>
-        ${!acc.bound ? `<button class="btn btn-sm btn-warning" style="width:100%;margin-top:2px;" onclick="openSmsModal('${acc.id}')">📲 短信二次安全绑定</button>` : ''}
+        ${!acc.bound ? `<button class="btn btn-sm btn-warning" style="width:100%;margin-top:2px;" onclick="openSmsModal('${acc.id}')">${ICONS.shield} 短信二次安全绑定</button>` : ''}
       </div>
     `;
 
@@ -1241,7 +1352,7 @@ function renderFilteredLogs() {
   });
 
   if (filtered.length === 0) {
-    logBox.innerHTML = `<div class="log-line" style="color: #64748b; padding: 12px 0; text-align: center;">[暂无此类日志]</div>`;
+    logBox.innerHTML = `<div class="log-line" style="color: var(--text-muted); padding: 12px 0; text-align: center;">[暂无此类日志]</div>`;
     return;
   }
 
@@ -1369,7 +1480,7 @@ async function initLogStream() {
 
 async function clearLogs() {
   allReceivedLogs = [];
-  document.getElementById("log-content").innerHTML = `<div class="log-line" style="color: #64748b; padding: 12px 0; text-align: center;">[日志已彻底清空]</div>`;
+  document.getElementById("log-content").innerHTML = `<div class="log-line" style="color: var(--text-muted); padding: 12px 0; text-align: center;">[日志已彻底清空]</div>`;
   
   // 联动后端持久化清空
   try {

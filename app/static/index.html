@@ -11,27 +11,53 @@
     <!-- 顶部导航 -->
     <header>
       <div class="logo-group">
-        <div class="logo-icon">☁️</div>
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+        </div>
         <div class="title-group">
           <h1>天翼云自动化控制中心</h1>
           <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">多账号长连接保活守护 · 每日签到打卡 · 智能挂机 · 自动兑换</p>
         </div>
       </div>
       <div class="header-actions">
+        <!-- 主题切换按钮 (浅色/深色模式) -->
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="切换浅色/深色主题">
+          <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="theme-icon-moon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+
         <!-- 未登录时仅显示登录/注册按钮 -->
-        <button class="btn btn-primary" id="btn-auth-action" onclick="openAuthModal()">🔑 立即登录</button>
+        <button class="btn btn-primary" id="btn-auth-action" onclick="openAuthModal()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          立即登录
+        </button>
 
         <!-- 登录后呈现的精简导航区：仅保留「➕ 添加云电脑」、「⚙️ 系统设置下拉」以及「头像下拉框」 -->
         <div id="logged-actions-group" class="hidden" style="display: flex; align-items: center; gap: 10px;">
-          <button class="btn btn-primary" onclick="openAddAccountModal()">➕ 添加云电脑</button>
+          <button class="btn btn-primary" onclick="openAddAccountModal()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            添加云电脑
+          </button>
 
           <!-- 系统设置下拉菜单栏 -->
           <div class="user-dropdown" id="settings-dropdown-container">
-            <button class="btn" onclick="toggleSettingsMenu()">⚙️ 系统设置 ▾</button>
+            <button class="btn" onclick="toggleSettingsMenu()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              系统设置 ▾
+            </button>
             <div class="dropdown-menu hidden" id="settings-dropdown-menu">
-              <button class="dropdown-item" onclick="openSettingsModal(); hideSettingsMenu();">⚙️ 系统与定时调度</button>
-              <button class="dropdown-item" onclick="restartKeeper(); hideSettingsMenu();">🔄 重启保活</button>
-              <button class="dropdown-item" onclick="openBackupModal(); hideSettingsMenu();">📦 备份与还原 (JSON)</button>
+              <button class="dropdown-item" onclick="openSettingsModal(); hideSettingsMenu();">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                系统与定时调度
+              </button>
+              <button class="dropdown-item" onclick="restartKeeper(); hideSettingsMenu();">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                重启保活进程
+              </button>
+              <button class="dropdown-item" onclick="openBackupModal(); hideSettingsMenu();">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                备份与还原 (JSON)
+              </button>
             </div>
           </div>
 
@@ -39,13 +65,22 @@
           <div class="user-dropdown" id="user-dropdown-container">
             <div class="avatar-btn" id="header-avatar" onclick="toggleUserMenu()" title="个人中心">U</div>
             <div class="dropdown-menu hidden" id="user-dropdown-menu">
-              <div style="padding: 8px 16px; font-size: 12px; color: var(--text-muted); border-bottom: 1px solid var(--border);">
-                登录身份: <span id="dropdown-username" style="font-weight: 700; color: #0f172a;">admin</span>
+              <div style="padding: 10px 16px; font-size: 12px; color: var(--text-muted); border-bottom: 1px solid var(--border);">
+                登录身份: <span id="dropdown-username" style="font-weight: 700; color: var(--text-main);">admin</span>
               </div>
-              <button class="dropdown-item" onclick="openChangePwdModal(); hideUserMenu();">🔒 修改密码/用户名</button>
-              <button class="dropdown-item hidden" id="menu-admin-users" onclick="openAdminUsersModal(); hideUserMenu();">👥 用户与配额管理</button>
+              <button class="dropdown-item" onclick="openChangePwdModal(); hideUserMenu();">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                修改密码 / 用户名
+              </button>
+              <button class="dropdown-item hidden" id="menu-admin-users" onclick="openAdminUsersModal(); hideUserMenu();">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                用户与配额管理
+              </button>
               <div class="dropdown-divider"></div>
-              <button class="dropdown-item" onclick="logoutUser(); hideUserMenu();" style="color: var(--danger);">🚪 退出登录</button>
+              <button class="dropdown-item" onclick="logoutUser(); hideUserMenu();" style="color: var(--danger);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                退出登录
+              </button>
             </div>
           </div>
         </div>
@@ -55,31 +90,39 @@
     <!-- 统计卡片 (未登录时不渲染显示) -->
     <div class="stats-grid hidden" id="main-stats-grid">
       <div class="stat-card">
-        <div class="stat-icon">👥</div>
+        <div class="stat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
         <div class="stat-info">
           <div class="stat-value" id="stat-total">0</div>
           <div class="stat-label">配置账号总数</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">📡</div>
+        <div class="stat-icon" style="color: var(--success); background: var(--success-bg);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>
+        </div>
         <div class="stat-info">
           <div class="stat-value" id="stat-online">0</div>
           <div class="stat-label">保活在线状态</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">📅</div>
+        <div class="stat-icon" style="color: var(--accent); background: var(--accent-bg);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+        </div>
         <div class="stat-info">
           <div class="stat-value" id="stat-signed">0</div>
           <div class="stat-label">今日已签到</div>
         </div>
       </div>
       <div class="stat-card" style="cursor: pointer;" onclick="openPointsDetailModal()" title="点击查看各云电脑今日积分明细">
-        <div class="stat-icon">🎁</div>
+        <div class="stat-icon" style="color: var(--warning); background: var(--warning-bg);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+        </div>
         <div class="stat-info">
-          <div class="stat-value" id="stat-points" style="color: #16a34a;">0</div>
-          <div class="stat-label">每日已获得积分 (查看明细 ↗)</div>
+          <div class="stat-value text-accent" id="stat-points">0</div>
+          <div class="stat-label">今日已获得积分 (查看明细 ↗)</div>
         </div>
       </div>
     </div>
@@ -87,9 +130,26 @@
     <!-- 账号列表区域 -->
     <div class="section-header hidden" id="main-section-header">
       <div class="section-title">
-        <span>📋</span> 账号管理与自动化配置
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10"/><path d="M7 12h10"/><path d="M7 17h10"/></svg>
+        账号管理与自动化配置
       </div>
-      <button class="btn btn-sm" onclick="loadAccounts()">🔄 刷新列表</button>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <!-- 视图切换器 -->
+        <div class="view-mode-toggle" id="view-mode-toggle">
+          <button class="view-mode-btn active" id="view-mode-grid-btn" onclick="setViewMode('grid')" title="网格卡片视图">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            卡片
+          </button>
+          <button class="view-mode-btn" id="view-mode-list-btn" onclick="setViewMode('list')" title="列表紧凑视图">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            紧凑
+          </button>
+        </div>
+        <button class="btn btn-sm" onclick="loadAccounts()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          刷新列表
+        </button>
+      </div>
     </div>
 
     <div class="accounts-grid" id="accounts-container">
@@ -105,17 +165,26 @@
             <div class="mac-dot mac-dot-yellow"></div>
             <div class="mac-dot mac-dot-green"></div>
           </div>
-          <span style="font-weight: 600; font-size: 13px; margin-left: 6px;">实时控制台日志</span>
+          <span style="font-weight: 600; font-size: 13px; margin-left: 6px; display: flex; align-items: center; gap: 6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            实时控制台日志
+          </span>
           <span class="badge badge-online" id="log-status" style="margin-left: 4px;">已连接</span>
-          <div style="display: flex; gap: 6px; margin-left: 12px;">
-            <button class="btn btn-sm btn-primary" id="tab-tasks" onclick="switchLogFilter('tasks')">🎯 任务反馈</button>
-            <button class="btn btn-sm" id="tab-heartbeat" onclick="switchLogFilter('heartbeat')">📡 心跳保活</button>
-            <button class="btn btn-sm" id="tab-all" onclick="switchLogFilter('all')">📄 全部日志</button>
+          <div class="log-tabs" style="display: flex; gap: 6px; margin-left: 12px;">
+            <button class="btn btn-sm btn-primary" id="tab-tasks" onclick="switchLogFilter('tasks')">任务反馈</button>
+            <button class="btn btn-sm" id="tab-heartbeat" onclick="switchLogFilter('heartbeat')">心跳保活</button>
+            <button class="btn btn-sm" id="tab-all" onclick="switchLogFilter('all')">全部日志</button>
           </div>
         </div>
         <div style="display: flex; gap: 8px;">
-          <button class="btn btn-sm" onclick="clearLogs()">清屏</button>
-          <button class="btn btn-sm" id="btn-autoscroll" onclick="toggleAutoScroll()">自动滚动: 开</button>
+          <button class="btn btn-sm" onclick="clearLogs()" title="清空当前日志屏">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+            清屏
+          </button>
+          <button class="btn btn-sm" id="btn-autoscroll" onclick="toggleAutoScroll()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+            自动滚动: 开
+          </button>
         </div>
       </div>
       <div class="log-content" id="log-content">
@@ -128,7 +197,10 @@
   <div class="modal-backdrop hidden" id="account-modal">
     <div class="modal">
       <div class="modal-header">
-        <h3 id="modal-account-title">添加天翼云账号</h3>
+        <h3 id="modal-title" style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          添加天翼云账号
+        </h3>
         <button class="modal-close" onclick="closeModal('account-modal')">&times;</button>
       </div>
       <div class="modal-body">
@@ -165,7 +237,10 @@
   <div class="modal-backdrop hidden" id="sms-modal">
     <div class="modal">
       <div class="modal-header">
-        <h3>绑定新设备 - 短信验证</h3>
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          绑定新设备 - 短信验证
+        </h3>
         <button class="modal-close" onclick="closeModal('sms-modal')">&times;</button>
       </div>
       <div class="modal-body">
@@ -196,7 +271,10 @@
   <div class="modal-backdrop hidden" id="redeem-modal">
     <div class="modal">
       <div class="modal-header">
-        <h3>🎁 自动兑换与抽奖配置</h3>
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+          自动兑换与抽奖配置
+        </h3>
         <button class="modal-close" onclick="closeModal('redeem-modal')">&times;</button>
       </div>
       <div class="modal-body">
@@ -271,13 +349,16 @@
   <div class="modal-backdrop hidden" id="points-detail-modal">
     <div class="modal" style="max-width: 620px;">
       <div class="modal-header">
-        <h3>📊 每日已获得积分详细明细</h3>
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          每日已获得积分详细明细
+        </h3>
         <button class="modal-close" onclick="closeModal('points-detail-modal')">&times;</button>
       </div>
       <div class="modal-body">
-        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(22,163,74,0.08); padding: 12px 18px; border-radius: 8px; border: 1px solid rgba(22,163,74,0.2);">
-          <span style="font-size: 13.5px; color: #1e293b;">今日名下所有云电脑已获总积分:</span>
-          <span style="font-size: 20px; font-weight: 700; color: #16a34a;"><b id="modal-points-sum">0</b> 分</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--success-bg); padding: 12px 18px; border-radius: 8px; border: 1px solid var(--success-border);">
+          <span style="font-size: 13.5px; color: var(--text-primary);">今日名下所有云电脑已获总积分:</span>
+          <span style="font-size: 20px; font-weight: 700; color: var(--success);"><b id="modal-points-sum">0</b> 分</span>
         </div>
         <div id="points-detail-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 6px;">
           <!-- 动态加载各云电脑今日明细 -->
@@ -293,7 +374,10 @@
   <div class="modal-backdrop hidden" id="power-modal">
     <div class="modal" style="max-width: 480px;">
       <div class="modal-header">
-        <h3>⚡ 云电脑电源管理</h3>
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          云电脑电源管理
+        </h3>
         <button class="modal-close" onclick="closeModal('power-modal')">&times;</button>
       </div>
       <div class="modal-body">
@@ -301,13 +385,13 @@
         <p style="font-size: 13px; color: var(--text-muted);">
           向天翼云下达电源控制指令。执行重启或关机前请确保云电脑内已保存重要数据。
         </p>
-        <div style="background: var(--bg-card); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px;">
-          当前云电脑: <b id="power-desktop-name" style="color: #0f172a;">--</b>
+        <div style="background: var(--bg-surface); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px;">
+          当前云电脑: <b id="power-desktop-name" style="color: var(--text-primary);">--</b>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 6px;">
-          <button class="btn btn-success" onclick="executePowerAction('poweron')">🟢 开机 / 唤醒</button>
-          <button class="btn btn-warning" onclick="executePowerAction('reboot')">🔄 重启云电脑</button>
-          <button class="btn btn-danger" onclick="executePowerAction('shutdown')">🔴 关机</button>
+          <button class="btn btn-success" onclick="executePowerAction('poweron')">开机 / 唤醒</button>
+          <button class="btn btn-warning" onclick="executePowerAction('reboot')">重启云电脑</button>
+          <button class="btn btn-danger" onclick="executePowerAction('shutdown')">关机</button>
         </div>
       </div>
       <div class="modal-footer">
@@ -320,14 +404,17 @@
   <div class="modal-backdrop hidden" id="manual-redeem-modal">
     <div class="modal" style="max-width: 540px;">
       <div class="modal-header">
-        <h3>🎁 手动积分兑换 / 幸运抽奖</h3>
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+          手动积分兑换 / 幸运抽奖
+        </h3>
         <button class="modal-close" onclick="closeModal('manual-redeem-modal')">&times;</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="manual-acc-id">
-        <div style="background: rgba(37,99,235,0.06); padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(37,99,235,0.2); display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 13px; color: #1e293b;">目标云电脑: <b id="manual-acc-name">--</b></span>
-          <span style="font-size: 13px; color: #16a34a; font-weight: 700;">可用积分: <b id="manual-user-points" style="font-size: 16px;">0</b></span>
+        <div style="background: var(--accent-subtle); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--primary); display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 13px; color: var(--text-primary);">目标云电脑: <b id="manual-acc-name">--</b></span>
+          <span style="font-size: 13px; color: var(--success); font-weight: 700;">可用积分: <b id="manual-user-points" style="font-size: 16px;">0</b></span>
         </div>
 
         <div class="form-group">
@@ -362,11 +449,14 @@
   <div class="modal-backdrop hidden" id="settings-modal">
     <div class="modal">
       <div class="modal-header">
-        <h3>⚙️ 全局系统与定时调度设置</h3>
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          全局系统与定时调度设置
+        </h3>
         <button class="modal-close" onclick="closeModal('settings-modal')">&times;</button>
       </div>
       <div class="modal-body">
-        <h4 style="font-size: 14px; margin-top: 4px; color: var(--accent);">⏰ 精准时间点自动化调度 (北京时间，零空转超低功耗模式)</h4>
+        <h4 style="font-size: 14px; margin-top: 4px; color: var(--accent); font-weight: 600;">精准时间点自动化调度 (北京时间，零空转超低功耗模式)</h4>
         <div class="form-group">
           <label>每日任务准时触发时间点 (主调度中心)</label>
           <input type="text" class="form-control" id="cron-task-time" value="08:00" placeholder="08:00">
@@ -375,7 +465,7 @@
         <details style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; cursor: pointer;">
           <summary style="font-weight: 500; color: var(--text);">高级：分项 Cron 表达式自定义 (辅助规则)</summary>
           <div style="margin-top: 6px; padding: 10px; background: #f8fafc; border-radius: 6px; border: 1px solid var(--border);">
-            <div style="color: #475569; margin-bottom: 8px;">说明：上述【每日任务准时触发时间点】为主导机制。如需针对某单项单独在特定时间额外加跑，可在此设定 Cron 表达式：</div>
+            <div style="color: var(--text-muted); margin-bottom: 8px;">说明：上述【每日任务准时触发时间点】为主导机制。如需针对某单项单独在特定时间额外加跑，可在此设定 Cron 表达式：</div>
             <div class="form-group">
               <label>每日签到打卡 Cron</label>
               <input type="text" class="form-control" id="cron-sign" value="0 2 * * *">
@@ -467,20 +557,23 @@
   <div class="modal-backdrop hidden" id="backup-modal">
     <div class="modal" style="max-width: 600px;">
       <div class="modal-header">
-        <h3>📦 配置导出与备份还原</h3>
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          配置导出与备份还原
+        </h3>
         <button class="modal-close" onclick="closeModal('backup-modal')">&times;</button>
       </div>
       <div class="modal-body">
-        <div style="background: #ffffff; padding: 14px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-          <h4 style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">📥 导出配置备份 (JSON)</h4>
+        <div class="info-card-panel">
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">导出配置备份 (JSON)</h4>
           <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px;">
             一键下载当前名下所有天翼云账号、分辨率、自动兑换与系统设置的完整 JSON 备份文件。
           </p>
-          <button class="btn btn-primary" onclick="exportConfigJson()">⬇️ 导出并下载配置文件</button>
+          <button class="btn btn-primary" onclick="exportConfigJson()">导出并下载配置文件</button>
         </div>
 
-        <div style="background: #ffffff; padding: 14px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.02); margin-top: 10px;">
-          <h4 style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">📤 导入还原配置 (JSON)</h4>
+        <div class="info-card-panel" style="margin-top: 10px;">
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">导入还原配置 (JSON)</h4>
           <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 10px;">
             上传之前备份的 JSON 文件即可一键批量导入所有账号，系统将自动唤醒所有云电脑长连接保活！
           </p>
@@ -493,7 +586,7 @@
           </div>
           <input type="file" id="import-file-input" accept=".json" style="display: none;" onchange="handleFileSelected(this)">
           <div style="display: flex; gap: 10px; align-items: center;">
-            <button class="btn btn-success" onclick="document.getElementById('import-file-input').click()">📂 选择并上传 JSON 文件</button>
+            <button class="btn btn-success" onclick="document.getElementById('import-file-input').click()">选择并上传 JSON 文件</button>
             <span id="import-file-name" style="font-size: 12.5px; color: var(--text-muted);">未选择文件</span>
           </div>
         </div>
@@ -537,12 +630,15 @@
   <div class="modal-backdrop hidden" id="change-pwd-modal">
     <div class="modal">
       <div class="modal-header">
-        <h3>🔒 个人账号与安全设置</h3>
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          个人账号与安全设置
+        </h3>
         <button class="modal-close" onclick="closeModal('change-pwd-modal')">&times;</button>
       </div>
       <div class="modal-body">
-        <div id="admin-change-username-group" class="hidden" style="background: var(--bg-card); padding: 12px 14px; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border);">
-          <label style="font-weight: 700; color: #0f172a; font-size: 13px;">修改管理员用户名</label>
+        <div id="admin-change-username-group" class="hidden" style="background: var(--bg-surface); padding: 12px 14px; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border);">
+          <label style="font-weight: 700; color: var(--text-primary); font-size: 13px;">修改管理员用户名</label>
           <div style="display: flex; gap: 8px; margin-top: 6px;">
             <input type="text" class="form-control" id="new-admin-username" placeholder="输入新管理员用户名">
             <button class="btn btn-sm btn-primary" onclick="submitChangeUsername()" style="white-space: nowrap;">保存用户名</button>
@@ -569,7 +665,10 @@
   <div class="modal-backdrop hidden" id="admin-user-pwd-modal">
     <div class="modal">
       <div class="modal-header">
-        <h3>🔑 修改指定用户密码</h3>
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          修改指定用户密码
+        </h3>
         <button class="modal-close" onclick="closeModal('admin-user-pwd-modal')">&times;</button>
       </div>
       <div class="modal-body">
@@ -594,7 +693,10 @@
   <div class="modal-backdrop hidden" id="admin-users-modal">
     <div class="modal" style="max-width: 720px;">
       <div class="modal-header">
-        <h3>👥 平台用户与云电脑配额管理</h3>
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          平台用户与云电脑配额管理
+        </h3>
         <button class="modal-close" onclick="closeModal('admin-users-modal')">&times;</button>
       </div>
       <div class="modal-body">
