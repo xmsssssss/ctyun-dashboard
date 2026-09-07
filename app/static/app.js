@@ -221,8 +221,8 @@ async function checkCurrentUser() {
       currentUser = null;
       if (authBtn) {
         authBtn.classList.remove("hidden");
-        authBtn.innerText = "🔑 立即登录";
-        authBtn.onclick = openAuthModal;
+        authBtn.innerHTML = `${ICONS.key} 立即登录`;
+        authBtn.onclick = () => openAuthModal("login");
       }
       
       // 未登录时隐藏所有业务区、控制台与已登录菜单
@@ -230,14 +230,26 @@ async function checkCurrentUser() {
       if (statsGrid) statsGrid.classList.add("hidden");
       if (sectionHeader) sectionHeader.classList.add("hidden");
       if (logPanel) logPanel.classList.add("hidden");
+
+      // 核心要求：未登录时自动弹出登录窗口，引导用户进入登录流程
+      setTimeout(() => {
+        openAuthModal("login");
+      }, 100);
     }
   } catch (e) {
     if (!currentAuthToken) {
-      if (authBtn) authBtn.classList.remove("hidden");
+      if (authBtn) {
+        authBtn.classList.remove("hidden");
+        authBtn.innerHTML = `${ICONS.key} 立即登录`;
+        authBtn.onclick = () => openAuthModal("login");
+      }
       if (loggedActionsGroup) loggedActionsGroup.classList.add("hidden");
       if (statsGrid) statsGrid.classList.add("hidden");
       if (sectionHeader) sectionHeader.classList.add("hidden");
       if (logPanel) logPanel.classList.add("hidden");
+      setTimeout(() => {
+        openAuthModal("login");
+      }, 100);
     }
   }
 }
@@ -355,7 +367,7 @@ function renderAccounts() {
   if (!currentUser) {
     container.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 48px 24px; background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px dashed var(--border); box-shadow: var(--shadow-sm);">
-        <div style="margin-bottom: 12px; color: var(--primary); display: flex; justify-content: center;">${ICONS.shield}</div>
+        <div class="empty-state-icon" style="margin-bottom: 14px; color: var(--primary); display: flex; justify-content: center;">${ICONS.shield}</div>
         <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">请登录后查看与管理云电脑</h3>
         <p style="font-size: 13.5px; color: var(--text-muted); max-width: 500px; margin: 0 auto 20px auto; line-height: 1.6;">
           为保障账号隐私安全与多用户隔离，未登录访客无法查看或添加云电脑。请登录已有账号，或免费注册新账号开启独立后台。
@@ -372,7 +384,7 @@ function renderAccounts() {
   if (!accounts || accounts.length === 0) {
     container.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px dashed var(--border);">
-        <div style="display: flex; justify-content: center; margin-bottom: 12px; color: var(--text-muted);">${ICONS.server}</div>
+        <div class="empty-state-icon" style="display: flex; justify-content: center; margin-bottom: 14px; color: var(--text-muted);">${ICONS.server}</div>
         <p style="font-size: 15px; margin-bottom: 16px; font-weight: 500;">当前账号下暂无配置云电脑</p>
         <button class="btn btn-primary" onclick="openAddAccountModal()">${ICONS.plus} 立即添加你的第一台云电脑</button>
       </div>
@@ -1616,10 +1628,10 @@ function handleFileSelected(input) {
 // ==========================================
 let authMode = "login";
 
-function openAuthModal() {
+function openAuthModal(mode = "login") {
   document.getElementById("auth-username").value = "";
   document.getElementById("auth-password").value = "";
-  switchAuthMode("login");
+  switchAuthMode(mode);
   openModal("auth-modal");
 }
 

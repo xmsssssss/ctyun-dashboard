@@ -132,6 +132,108 @@
   --log-flash: rgba(59, 130, 246, 0.2);
 }
 
+/* 全局通用矢量图标规范 (严格控制宽高，防止 SVG 撑满容器) */
+svg {
+  box-sizing: border-box;
+}
+
+.icon-svg {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  vertical-align: -2px;
+  flex-shrink: 0;
+}
+
+/* 按钮内图标规格 (强制限制宽高为 14px) */
+.btn svg,
+.btn .icon-svg {
+  width: 14px;
+  height: 14px;
+  max-width: 14px;
+  max-height: 14px;
+  vertical-align: -2px;
+  flex-shrink: 0;
+}
+
+/* 标题栏与弹窗内标题图标 */
+h3 svg,
+h3 .icon-svg,
+.modal-header h3 svg {
+  width: 17px;
+  height: 17px;
+  max-width: 17px;
+  max-height: 17px;
+  vertical-align: -3px;
+  flex-shrink: 0;
+}
+
+/* 折叠面板图标 */
+.summary-title svg,
+.summary-title .icon-svg {
+  width: 14px;
+  height: 14px;
+  max-width: 14px;
+  max-height: 14px;
+  vertical-align: -2px;
+  flex-shrink: 0;
+}
+
+/* 状态徽标与开关标签内的图标 */
+.badge svg,
+.badge .icon-svg,
+.feature-label svg,
+.feature-label .icon-svg {
+  width: 13px;
+  height: 13px;
+  max-width: 13px;
+  max-height: 13px;
+  vertical-align: -2px;
+  flex-shrink: 0;
+}
+
+/* 统计卡片图标规范 (严格 22px) */
+.stat-icon svg,
+.stat-icon .icon-svg {
+  width: 22px;
+  height: 22px;
+  max-width: 22px;
+  max-height: 22px;
+  flex-shrink: 0;
+}
+
+/* 顶部 Logo 图标规范 */
+.logo-icon svg,
+.logo-icon .icon-svg {
+  width: 22px;
+  height: 22px;
+  max-width: 22px;
+  max-height: 22px;
+  flex-shrink: 0;
+}
+
+/* 登录/空状态大插图图标 */
+.empty-state-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 9999px;
+  background: var(--bg-muted);
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.empty-state-icon svg,
+.empty-state-icon .icon-svg {
+  width: 28px;
+  height: 28px;
+  max-width: 28px;
+  max-height: 28px;
+  stroke-width: 1.75;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -209,6 +311,46 @@ header {
 }
 
 /* 优雅用户下拉框 */
+/* 主题切换按钮样式 */
+.theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-main);
+  border-color: var(--border-hover);
+}
+
+.theme-toggle-btn svg {
+  width: 18px;
+  height: 18px;
+  max-width: 18px;
+  max-height: 18px;
+  stroke-width: 2;
+}
+
+/* 下拉菜单项内图标 */
+.dropdown-item svg,
+.dropdown-item .icon-svg {
+  width: 15px;
+  height: 15px;
+  max-width: 15px;
+  max-height: 15px;
+  flex-shrink: 0;
+}
+
 .user-dropdown {
   position: relative;
   display: inline-block;
