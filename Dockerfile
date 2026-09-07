@@ -7,9 +7,12 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-# 配置国内 npm 镜像源，安装依赖并深度剔除跨平台冗余二进制
+# 配置国内 npm 镜像源，设置跳过 CUDA 等外部大包联网下载 (CPU环境已内置Linux x64/arm64)，安装依赖并深度剔除跨平台冗余二进制
+ENV ONNXRUNTIME_NODE_INSTALL=skip \
+    ONNXRUNTIME_NODE_INSTALL_CUDA=skip
+
 RUN npm config set registry https://registry.npmmirror.com && \
-    npm ci --omit=dev --no-audit && \
+    npm ci --omit=dev --no-audit --ignore-scripts=false && \
     rm -rf /root/.npm \
            node_modules/onnxruntime-node/bin/napi-v6/darwin \
            node_modules/onnxruntime-node/bin/napi-v6/win32 \
