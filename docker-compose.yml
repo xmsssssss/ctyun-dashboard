@@ -2,7 +2,10 @@ version: '3.8'
 
 services:
   ctyun-dashboard:
-    build: .
+    # 支持直接根据 Git 仓库在线克隆并自动完成构建（国内构建已自动走 npmmirror 与阿里云 Debian 软件源加速）
+    build:
+      context: https://github.com/xmsssssss/ctyun-dashboard.git#main
+      dockerfile: Dockerfile
     image: ctyun-dashboard:latest
     container_name: ctyun-dashboard
     restart: unless-stopped
