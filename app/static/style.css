@@ -58,6 +58,14 @@
   --header-border: rgba(226, 232, 240, 0.8);
   --modal-backdrop: rgba(15, 23, 42, 0.6);
   --stat-hover-border: #cbd5e1;
+  --border-hover: #cbd5e1;
+  --bg-surface-hover: #f1f5f9;
+  --primary: #2563eb;
+  --focus-ring: rgba(37, 99, 235, 0.2);
+  --accent-subtle: #eff6ff;
+  --log-terminal-bg: #090d16;
+  --log-terminal-text: #e2e8f0;
+  --log-flash: rgba(37, 99, 235, 0.15);
 }
 
 /* 深色暗黑模式 (Dark Theme) */
@@ -114,6 +122,14 @@
   --header-border: rgba(36, 48, 73, 0.8);
   --modal-backdrop: rgba(3, 7, 18, 0.75);
   --stat-hover-border: #3b82f6;
+  --border-hover: #334155;
+  --bg-surface-hover: #1e293b;
+  --primary: #3b82f6;
+  --focus-ring: rgba(59, 130, 246, 0.3);
+  --accent-subtle: rgba(59, 130, 246, 0.12);
+  --log-terminal-bg: #070a12;
+  --log-terminal-text: #e2e8f0;
+  --log-flash: rgba(59, 130, 246, 0.2);
 }
 
 * {
