@@ -598,6 +598,7 @@ function openAddAccountModal() {
   document.getElementById("acc-password").value = "";
   document.getElementById("acc-device-code").value = "";
   openModal("account-modal");
+  generateNewDeviceCode();
 }
 
 function editAccount(accId) {
@@ -614,13 +615,17 @@ function editAccount(accId) {
 }
 
 async function generateNewDeviceCode() {
+  const codeInput = document.getElementById("acc-device-code");
+  const origPlaceholder = codeInput.placeholder;
+  codeInput.placeholder = "正在生成中...";
   try {
-    const res = await fetch("/api/device/generate", { method: "POST" });
+    const res = await authFetch("/api/device/generate", { method: "POST" });
     const data = await res.json();
-    document.getElementById("acc-device-code").value = data.deviceCode;
-    showToast("已重新生成设备码", "info");
+    codeInput.value = data.deviceCode || "";
   } catch (e) {
-    showToast("生成失败", "error");
+    showToast("生成设备码失败: " + e.message, "error");
+  } finally {
+    codeInput.placeholder = origPlaceholder;
   }
 }
 
@@ -631,14 +636,17 @@ async function saveAccount() {
   const password = document.getElementById("acc-password").value.trim();
   const deviceCode = document.getElementById("acc-device-code").value.trim();
 
-  if (!user || !password) {
+  if (!user || (!accId && !password)) {
     showToast("手机号/账号与密码不能为空", "error");
     return;
   }
 
-  showToast("正在向天翼云发起真实登录验证，请稍候...", "info");
+  showToast(accId ? "正在保存账号配置..." : "正在向天翼云发起真实登录验证，请稍候...", "info");
 
-  const payload = { name: name || user, user, password, deviceCode };
+  const payload = { name: name || user, user, deviceCode };
+  if (password) {
+    payload.password = password;
+  }
 
   try {
     let res;

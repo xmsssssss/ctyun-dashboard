@@ -1722,6 +1722,15 @@ const server = http.createServer(async (req, res) => {
     serveStatic(res, path.join(STATIC_DIR, 'index.html'), 'text/html; charset=utf-8');
     return;
   }
+  if (pathname === '/favicon.ico') {
+    const faviconSvg = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>`, 'utf-8');
+    res.writeHead(200, {
+      'Content-Type': 'image/svg+xml; charset=utf-8',
+      'Cache-Control': 'public, max-age=86400'
+    });
+    res.end(faviconSvg);
+    return;
+  }
   if (pathname.startsWith('/static/')) {
     const rel = pathname.substring(8);
     const file = path.join(STATIC_DIR, rel);
@@ -2229,8 +2238,17 @@ const server = http.createServer(async (req, res) => {
     const body = await parseJsonBody(req);
     if (body.name) acc.name = body.name;
     if (body.user) acc.user = body.user;
-    if (body.password) acc.password = body.password;
-    if (body.deviceCode) acc.deviceCode = body.deviceCode;
+    if (body.password && body.password.trim()) acc.password = body.password.trim();
+    if (body.deviceCode && body.deviceCode.trim()) {
+      const trimmedDeviceCode = body.deviceCode.trim();
+      if (trimmedDeviceCode !== acc.deviceCode) {
+        acc.deviceCode = trimmedDeviceCode;
+        acc.bound = false;
+        if (clientInstances.has(acc.id)) {
+          clientInstances.get(acc.id).loginInfo = null;
+        }
+      }
+    }
     if (body.displayConfig) acc.displayConfig = { ...acc.displayConfig, ...body.displayConfig };
     if (typeof body.enabled === 'boolean') acc.enabled = body.enabled;
     if (typeof body.bound === 'boolean') acc.bound = body.bound;
