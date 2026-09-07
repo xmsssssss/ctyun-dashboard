@@ -230,10 +230,12 @@ async function sendNotification(settings, title, content, extraVars = {}) {
 
   const channel = notify.channel || 'webhook';
 
-  // SSRF 安全防御校验
-  if (notify.webhookUrl && !isValidWebhookUrl(notify.webhookUrl)) {
-    appendLog('Notify', `[安全拦截] 拒绝向私有/内网或非法协议地址发送 Webhook: ${notify.webhookUrl}`, 'error');
-    return { success: false, message: '安全拦截：禁止向内网/本地私有地址或非法协议发送 Webhook' };
+  // SSRF 安全防御校验（如果是 http/https 完整 URL 则执行内网拦截检测）
+  if (notify.webhookUrl && (/^https?:\/\//i.test(notify.webhookUrl) || channel === 'webhook' || channel === 'qywx' || channel === 'bark')) {
+    if (!isValidWebhookUrl(notify.webhookUrl)) {
+      appendLog('Notify', `[安全拦截] 拒绝向私有/内网或非法协议地址发送 Webhook: ${notify.webhookUrl}`, 'error');
+      return { success: false, message: '安全拦截：禁止向内网/本地私有地址或非法协议发送 Webhook' };
+    }
   }
   
   // 模板变量替换
@@ -535,7 +537,7 @@ class CtYunClient {
   }
 
   async getCaptchaCode(user) {
-    if (!ocrEngine) ocrEngine = new DdddOcr();
+    if (!ocrEngine) ocrEngine = new LightweightOcr();
     const capUrl = `https://desk.ctyun.cn:8810/api/auth/client/captcha?height=36&width=85&userInfo=${user}&mode=auto&_t=${Date.now()}`;
     const res = await fetch(capUrl, {
       headers: {
@@ -2877,9 +2879,12 @@ const server = http.createServer(async (req, res) => {
     // SSRF 防御校验：检查 Webhook 地址合法性
     if (body.notify && body.notify.webhookUrl) {
       const targetUrl = String(body.notify.webhookUrl).trim();
-      if (body.notify.enabled && !isValidWebhookUrl(targetUrl)) {
-        jsonResponse(res, { error: '安全拦截：禁止设置内网/私有IP或非法协议作为 Webhook 推送目标！' }, 400);
-        return;
+      const channel = body.notify.channel || appConfig.settings?.notify?.channel || 'webhook';
+      if (body.notify.enabled && (/^https?:\/\//i.test(targetUrl) || channel === 'webhook' || channel === 'qywx' || channel === 'bark')) {
+        if (!isValidWebhookUrl(targetUrl)) {
+          jsonResponse(res, { error: '安全拦截：禁止设置内网/私有IP或非法协议作为 Webhook 推送目标！' }, 400);
+          return;
+        }
       }
     }
 
@@ -2930,9 +2935,18 @@ const server = http.createServer(async (req, res) => {
 
     const body = await parseJsonBody(req);
     const testUrl = (body.webhookUrl || appConfig.settings?.notify?.webhookUrl || '').trim();
-    if (!isValidWebhookUrl(testUrl)) {
-      jsonResponse(res, { success: false, message: '安全拦截：目标 URL 为内网/本地私有地址或协议非法，已被系统拒绝！' }, 400);
+    const testChannel = body.channel || appConfig.settings?.notify?.channel || 'webhook';
+
+    if (!testUrl) {
+      jsonResponse(res, { success: false, message: '请输入或先配置有效的推送 Key 或 Webhook 地址' }, 400);
       return;
+    }
+
+    if (/^https?:\/\//i.test(testUrl) || testChannel === 'webhook' || testChannel === 'qywx' || testChannel === 'bark') {
+      if (!isValidWebhookUrl(testUrl)) {
+        jsonResponse(res, { success: false, message: '安全拦截：目标 URL 为内网/本地私有地址或协议非法，已被系统拒绝！' }, 400);
+        return;
+      }
     }
 
     const testSettings = {

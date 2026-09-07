@@ -843,6 +843,10 @@ async function loadAccountDesktops(accId, selectedDesktopId) {
   select.innerHTML = "<option value='default'>默认主云电脑</option>";
 }
 
+function onProductSelectChange() {
+  // 切换奖品时的回调钩子（保留以支持扩展并防止 HTML 内联 onchange 抛出未定义异常）
+}
+
 function onTargetTypeChange() {
   const type = document.getElementById("redeem-target-type").value;
   const desktopGroup = document.getElementById("group-desktop-select");
