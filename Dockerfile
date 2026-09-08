@@ -1,5 +1,5 @@
 # -------------------------------------------------------------
-# 构建阶段：使用国内 npm 镜像源加速安装并裁剪多架构冗余
+# 构建阶段：极速安装生产依赖 (仅保留原生 ws 协议库，彻底移除重型依赖)
 # -------------------------------------------------------------
 FROM node:22-bookworm-slim AS builder
 
@@ -7,15 +7,9 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-# 配置国内 npm 镜像源，设置跳过 CUDA 等外部大包联网下载 (CPU环境已内置Linux x64/arm64)，安装依赖并深度剔除跨平台冗余二进制
-ENV ONNXRUNTIME_NODE_INSTALL=skip \
-    ONNXRUNTIME_NODE_INSTALL_CUDA=skip
-
 RUN npm config set registry https://registry.npmmirror.com && \
-    npm ci --omit=dev --no-audit --ignore-scripts=false && \
+    npm install --omit=dev --no-audit && \
     rm -rf /root/.npm \
-           node_modules/onnxruntime-node/bin/napi-v6/darwin \
-           node_modules/onnxruntime-node/bin/napi-v6/win32 \
            node_modules/**/README.md \
            node_modules/**/CHANGELOG.md \
            node_modules/**/.github \
