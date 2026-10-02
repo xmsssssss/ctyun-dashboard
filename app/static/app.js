@@ -655,6 +655,204 @@ async function refreshModalCaptcha() {
   }
 }
 
+
+// ─── 扫码登录与重新扫码授权 ───
+function switchAccountLoginTab(tab) {
+  const btnQr = document.getElementById("tab-btn-qrcode");
+  const btnPwd = document.getElementById("tab-btn-pwd");
+  const panelQr = document.getElementById("login-panel-qrcode");
+  const panelPwd = document.getElementById("login-panel-pwd");
+  const btnSave = document.getElementById("btn-save-account-pwd");
+
+  if (tab === 'qrcode') {
+    if (btnQr) btnQr.className = "btn btn-sm btn-primary";
+    if (btnPwd) btnPwd.className = "btn btn-sm";
+    if (panelQr) panelQr.classList.remove("hidden");
+    if (panelPwd) panelPwd.classList.add("hidden");
+    if (btnSave) btnSave.style.display = "none";
+    loadQrCodeForModal();
+  } else {
+    if (btnQr) btnQr.className = "btn btn-sm";
+    if (btnPwd) btnPwd.className = "btn btn-sm btn-primary";
+    if (panelQr) panelQr.classList.add("hidden");
+    if (panelPwd) panelPwd.classList.remove("hidden");
+    if (btnSave) btnSave.style.display = "inline-flex";
+    if (qrPollingTimer) { clearInterval(qrPollingTimer); qrPollingTimer = null; }
+    generateNewDeviceCode();
+    setTimeout(refreshModalCaptcha, 200);
+  }
+}
+
+async function loadQrCodeForModal() {
+  if (qrPollingTimer) { clearInterval(qrPollingTimer); qrPollingTimer = null; }
+  const imgEl = document.getElementById("acc-qrcode-img");
+  const loadingEl = document.getElementById("acc-qrcode-loading");
+  const hintEl = document.getElementById("acc-qrcode-hint");
+
+  if (imgEl) imgEl.style.display = "none";
+  if (loadingEl) { loadingEl.style.display = "flex"; loadingEl.innerText = "正在生成官方二维码..."; }
+  if (hintEl) { hintEl.innerText = "等待扫码确认中..."; hintEl.style.color = "#2563eb"; }
+
+  try {
+    const res = await authFetch("/api/account/qrcode/generate", { method: "POST" });
+    const data = await res.json();
+    if (res.ok && data.success && data.qrUrl) {
+      currentQrCodeId = data.qrCodeId;
+      const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(data.qrUrl)}`;
+      if (imgEl) {
+        imgEl.src = qrApiUrl;
+        imgEl.onload = () => {
+          imgEl.style.display = "block";
+          if (loadingEl) loadingEl.style.display = "none";
+        };
+      }
+
+      const currentAccId = document.getElementById("acc-id") ? document.getElementById("acc-id").value : "";
+      const accIdParam = currentAccId ? `&accId=${encodeURIComponent(currentAccId)}` : "";
+
+      qrPollingTimer = setInterval(async () => {
+        try {
+          const currentNameVal = document.getElementById("qrcode-acc-name") ? document.getElementById("qrcode-acc-name").value.trim() : "";
+          const sRes = await authFetch(`/api/account/qrcode/status?qrCodeId=${encodeURIComponent(currentQrCodeId)}&deviceCode=${encodeURIComponent(data.deviceCode)}&accountName=${encodeURIComponent(currentNameVal)}${accIdParam}`);
+          const sData = await sRes.json();
+          if (sData.success) {
+            if (sData.codeStatus === 'scaned') {
+              if (hintEl) { hintEl.innerText = "📱 手机端已扫描，请在手机上点击【确认登录】..."; hintEl.style.color = "#16a34a"; }
+            } else if (sData.codeStatus === 'authorize') {
+              if (qrPollingTimer) { clearInterval(qrPollingTimer); qrPollingTimer = null; }
+              showToast(sData.isReAuth ? "🎉 官方扫码重新授权成功！已恢复在线保活！" : "🎉 官方扫码授权成功！天翼云电脑已上线！", "success");
+              closeModal("account-modal");
+              loadAccounts();
+            } else if (sData.codeStatus === 'expire') {
+              if (qrPollingTimer) { clearInterval(qrPollingTimer); qrPollingTimer = null; }
+              if (hintEl) { hintEl.innerText = "二维码已失效，点击重新生成"; hintEl.style.color = "#dc2626"; }
+            }
+          }
+        } catch (e) {}
+      }, 2000);
+    } else {
+      if (loadingEl) loadingEl.innerText = "生成二维码失败，请重试";
+    }
+  } catch (e) {
+    if (loadingEl) loadingEl.innerText = "网络异常，生成失败";
+  }
+}
+
+function openReauthModal(accId) {
+  const acc = accounts.find(a => a.id === accId);
+  if (!acc) return;
+  document.getElementById("acc-id").value = acc.id;
+  const titleEl = document.getElementById("modal-account-title-text") || document.getElementById("modal-account-title");
+  if (titleEl) titleEl.innerText = `📱 重新扫码授权 [${acc.name || acc.user}]`;
+  const qrNameEl = document.getElementById("qrcode-acc-name");
+  if (qrNameEl) qrNameEl.value = acc.name || "";
+
+  openModal("account-modal");
+  switchAccountLoginTab('qrcode');
+}
+
+// ─── 单机精细化独立管控 (Per-VM) ───
+async function toggleVmFeature(accId, vmKey, featureName, nextVal) {
+  const acc = accounts.find(a => a.id === accId);
+  if (!acc) return;
+
+  acc.desktops = acc.desktops || [];
+  const targetD = acc.desktops.find(d => String(d.desktopId || d.objId) === String(vmKey));
+  if (targetD) targetD[featureName] = nextVal;
+
+  try {
+    const res = await authFetch(`/api/accounts/${accId}/vm-feature`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ vmId: vmKey, feature: featureName, value: nextVal })
+    });
+    if (res.ok) {
+      showToast(`单机配置更新成功`, "success");
+      renderAccounts();
+    } else {
+      const err = await res.json();
+      showToast("更新失败: " + (err.error || "未知错误"), "error");
+      if (targetD) targetD[featureName] = !nextVal;
+      renderAccounts();
+    }
+  } catch (e) {
+    showToast("网络请求异常: " + e.message, "error");
+    if (targetD) targetD[featureName] = !nextVal;
+    renderAccounts();
+  }
+}
+
+async function changeVmInterval(accId, targetId, val) {
+  const num = parseInt(val) || null;
+  await toggleVmFeature(accId, targetId, 'keepaliveInterval', num);
+}
+
+async function bootCtyunVm(accId, desktopId) {
+  try {
+    showToast("正在发送开机指令...", "info");
+    const res = await authFetch(`/api/accounts/${accId}/power/poweron`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ desktopId })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showToast("开机指令下发成功！正在唤醒中...", "success");
+      setTimeout(() => loadAccounts(true), 3000);
+    } else {
+      showToast("开机失败: " + (data.error || data.message || "未知错误"), "error");
+    }
+  } catch (e) {
+    showToast("请求失败: " + e.message, "error");
+  }
+}
+
+// ─── 账号备注即点即改 ───
+function startInlineEditName(accId) {
+  activeEditingAccId = accId;
+  const textEl = document.getElementById(`acc-name-text-${accId}`);
+  const inputEl = document.getElementById(`acc-name-input-${accId}`);
+  if (textEl && inputEl) {
+    textEl.classList.add("hidden");
+    inputEl.classList.remove("hidden");
+    inputEl.focus();
+    inputEl.select();
+  }
+}
+
+async function saveInlineName(accId) {
+  const inputEl = document.getElementById(`acc-name-input-${accId}`);
+  if (!inputEl) return;
+  const newName = inputEl.value.trim();
+  activeEditingAccId = null;
+
+  const acc = accounts.find(a => a.id === accId);
+  if (!acc || acc.name === newName) {
+    renderAccounts();
+    return;
+  }
+
+  acc.name = newName;
+  try {
+    await authFetch(`/api/accounts/${accId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newName })
+    });
+    showToast("账号备注已更新", "success");
+  } catch (e) {}
+  renderAccounts();
+}
+
+function handleInlineNameKey(e, accId) {
+  if (e.key === "Enter") {
+    saveInlineName(accId);
+  } else if (e.key === "Escape") {
+    activeEditingAccId = null;
+    renderAccounts();
+  }
+}
+
 function openAddAccountModal() {
   const titleEl = document.getElementById("modal-account-title-text") || document.getElementById("modal-account-title");
   if (titleEl) titleEl.innerText = "添加天翼云账号";
@@ -666,8 +864,7 @@ function openAddAccountModal() {
   if (capInput) capInput.value = "";
   document.getElementById("acc-device-code").value = "";
   openModal("account-modal");
-  generateNewDeviceCode();
-  setTimeout(refreshModalCaptcha, 300);
+  switchAccountLoginTab('qrcode');
 }
 
 function editAccount(accId) {
@@ -800,30 +997,89 @@ async function deleteAccount(accId) {
   }
 }
 
-// 4. 短信验证码绑定设备
+// 4. 短信验证码绑定设备与设备授信
 function openSmsModal(accId) {
   const acc = accounts.find(a => a.id === accId);
   if (!acc) return;
   document.getElementById("sms-acc-id").value = acc.id;
   document.getElementById("sms-phone").value = acc.user;
   document.getElementById("sms-code").value = "";
+  const capInput = document.getElementById("sms-captcha-code");
+  if (capInput) capInput.value = "";
+  const capKey = document.getElementById("sms-captcha-key");
+  if (capKey) capKey.value = "";
   openModal("sms-modal");
+  setTimeout(refreshSmsCaptcha, 200);
+}
+
+function openQrTrustFromSms() {
+  const accId = document.getElementById("sms-acc-id").value;
+  const acc = accounts.find(a => a.id === accId);
+  if (!acc) return;
+  closeModal("sms-modal");
+
+  document.getElementById("acc-id").value = acc.id;
+  const titleEl = document.getElementById("modal-account-title-text") || document.getElementById("modal-account-title");
+  if (titleEl) titleEl.innerText = `📱 扫码一键信任设备 [${acc.name || acc.user}] (免短信)`;
+  const qrNameEl = document.getElementById("qrcode-acc-name");
+  if (qrNameEl) qrNameEl.value = acc.name || "";
+
+  openModal("account-modal");
+  switchAccountLoginTab('qrcode');
+}
+
+async function refreshSmsCaptcha() {
+  const accId = document.getElementById("sms-acc-id").value;
+  if (!accId) return;
+  const imgEl = document.getElementById("sms-captcha-img");
+  const loadingEl = document.getElementById("sms-captcha-loading");
+  if (imgEl) imgEl.style.display = "none";
+  if (loadingEl) { loadingEl.style.display = "flex"; loadingEl.innerText = "获取中..."; }
+  try {
+    const res = await authFetch(`/api/accounts/${accId}/sms-captcha`);
+    const data = await res.json();
+    if (res.ok && data.success) {
+      const keyEl = document.getElementById("sms-captcha-key");
+      if (keyEl) keyEl.value = data.captchaKey || "";
+      if (imgEl) {
+        imgEl.src = data.captchaImage;
+        imgEl.style.display = "block";
+      }
+      if (loadingEl) loadingEl.style.display = "none";
+    } else {
+      if (loadingEl) loadingEl.innerText = "获取失败，点击重试";
+    }
+  } catch (e) {
+    if (loadingEl) loadingEl.innerText = "网络异常，点击重试";
+  }
 }
 
 let smsCountdown = 0;
 async function sendSmsCode() {
   const accId = document.getElementById("sms-acc-id").value;
   const btn = document.getElementById("btn-send-sms");
+  const captchaCode = (document.getElementById("sms-captcha-code")?.value || "").trim();
+  const captchaKey = (document.getElementById("sms-captcha-key")?.value || "").trim();
+
   if (smsCountdown > 0) return;
+  if (!captchaCode) {
+    showToast("请先输入图形验证码", "error");
+    document.getElementById("sms-captcha-code")?.focus();
+    return;
+  }
 
   btn.innerText = "发送中...";
   btn.disabled = true;
 
   try {
-    const res = await authFetch(`/api/accounts/${accId}/send-sms`, { method: "POST" });
+    const res = await authFetch(`/api/accounts/${accId}/send-sms`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ captchaCode, captchaKey })
+    });
     const data = await res.json();
     if (res.ok) {
-      showToast("验证码发送成功，请查收手机短信", "success");
+      showToast("验证码已下发，请查收手机短信", "success");
       smsCountdown = 60;
       const timer = setInterval(() => {
         smsCountdown--;
@@ -839,6 +1095,7 @@ async function sendSmsCode() {
       showToast("发送短信失败: " + (data.message || data.error), "error");
       btn.innerText = "获取验证码";
       btn.disabled = false;
+      refreshSmsCaptcha();
     }
   } catch (e) {
     showToast("请求异常: " + e.message, "error");
@@ -849,7 +1106,8 @@ async function sendSmsCode() {
 
 async function submitSmsBind() {
   const accId = document.getElementById("sms-acc-id").value;
-  const code = document.getElementById("sms-code").value.trim();
+  const code = (document.getElementById("sms-code")?.value || "").trim();
+  const smsCodeKey = (document.getElementById("sms-captcha-key")?.value || "").trim();
 
   if (!code) {
     showToast("请输入短信验证码", "error");
@@ -860,11 +1118,11 @@ async function submitSmsBind() {
     const res = await authFetch(`/api/accounts/${accId}/bind-sms`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ verificationCode: code })
+      body: JSON.stringify({ verificationCode: code, smsCodeKey })
     });
     const data = await res.json();
     if (res.ok) {
-      showToast("设备绑定成功！保活已就绪", "success");
+      showToast("🎉 设备绑定成功！设备码已获官方永久信任，保活与签到全面恢复！", "success");
       closeModal("sms-modal");
       loadAccounts();
     } else {
@@ -874,7 +1132,6 @@ async function submitSmsBind() {
     showToast("请求异常: " + e.message, "error");
   }
 }
-
 // 5. 自动兑换与抽奖设置
 async function openRedeemModal(accId) {
   const acc = accounts.find(a => a.id === accId);

@@ -1292,3 +1292,193 @@ input:checked + .slider:before {
     border-radius: var(--radius);
   }
 }
+
+/* 🖥️ 单台云电脑设备卡片规范 (Per-VM 独立精细化管控) */
+.vm-device-item {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.vm-device-item:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.vm-device-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.vm-device-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  padding-top: 5px;
+  border-top: 1px dashed var(--border);
+  flex-wrap: wrap;
+}
+
+.pill-btn-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.pill-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg-muted);
+  color: var(--text-muted);
+  user-select: none;
+  transition: all 0.15s ease;
+  line-height: 1.35;
+}
+
+.pill-toggle-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.96);
+}
+
+.pill-toggle-btn:active {
+  transform: scale(0.96);
+}
+
+.pill-toggle-btn.pill-on-keepalive {
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: var(--success-border);
+}
+
+.pill-toggle-btn.pill-off-keepalive {
+  background: var(--bg-muted);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.pill-toggle-btn.pill-on-autoboot {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+
+.pill-toggle-btn.pill-off-autoboot {
+  background: var(--bg-muted);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.pill-toggle-btn.pill-on-task {
+  background: #faf5ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
+}
+
+[data-theme="dark"] .pill-toggle-btn.pill-on-task {
+  background: rgba(124, 58, 237, 0.15);
+  color: #a78bfa;
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+.pill-toggle-btn.pill-off-task {
+  background: var(--bg-muted);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.pill-toggle-btn.pill-paused {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border-color: var(--warning-border);
+}
+
+.pill-select {
+  display: inline-flex;
+  align-items: center;
+  padding: 1.5px 6px;
+  border-radius: 9999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg-muted);
+  color: var(--text-secondary);
+  outline: none;
+  line-height: 1.35;
+  transition: all 0.15s ease;
+}
+
+.pill-select:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-surface);
+}
+
+.pill-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+.pill-toggle-btn.pill-action-boot {
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: var(--success-border);
+  cursor: pointer;
+}
+
+/* 账号名称即点即改 */
+.account-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.account-name-text {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.account-name-text:hover .name-edit-icon {
+  opacity: 0.85;
+}
+
+.name-edit-icon {
+  font-size: 11px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.inline-name-input {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+  padding: 4px 8px;
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+  width: 140px;
+  height: 28px;
+  box-sizing: border-box;
+}
