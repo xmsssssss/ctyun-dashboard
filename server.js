@@ -233,13 +233,9 @@ setInterval(() => {
   }
 }, 3600 * 1000);
 
-/** 智能推断平台归属 */
+/** 智能推断平台归属 (纯天翼云版) */
 function inferLogPlatform(source, platform) {
-  if (source === 'SOHO' || source === 'CAG' || source === 'CSAP' || source === 'YDPc') return 'ydpc';
-  // 移动公众（ecloud）走独立侧车，日志源固定为 ECLOUD —— 与移动爱家/天翼云的日志流严格分开
-  if (source === ECLOUD_LOG_SOURCE || source === 'ECLOUD') return 'ecloud';
-  if (source === 'Sign' || source === 'AIChat' || source === 'Hang' || source === 'Redeem') return 'ctyun';
-  return platform || 'ctyun';
+  return 'ctyun';
 }
 
 /** 构造一条原始日志条目（不做任何折叠） */
@@ -1101,7 +1097,6 @@ const TASK_CN_NAME = {
 const TASK_FEATURE_KEY = {
   keepAlive: 'keepAlive', sign: 'autoSign', aiChat: 'aiChat', cloudHang: 'cloudHang'
 };
-const ECLOUD_KEEPALIVE_TASKS = new Set();
 
 function resolveTaskEnabled(account, desktop, taskType) {
   const label = TASK_CN_NAME[taskType] || taskType;
@@ -1113,14 +1108,6 @@ function resolveTaskEnabled(account, desktop, taskType) {
 
   if (taskType === 'keepAlive') {
     if (f.keepAlive === false) return { enabled: false, reason: '账号级【常态保活】开关已关闭' };
-    if (desktop && desktop.keepaliveEnabled === false) return { enabled: false, reason: '该云电脑的【独立保活】开关已关闭' };
-    return { enabled: true, reason: '' };
-  }
-
-  // 移动公众（ecloud）：三层保活同属"保活类" —— 账号级开关 + 单机 keepaliveEnabled，
-  // 与 taskEnabled 无关（混用会让"关掉任务开关"误停保活）。
-  if (ECLOUD_KEEPALIVE_TASKS.has(taskType)) {
-    if (f[featureKey] === false) return { enabled: false, reason: `账号级【${label}】开关已关闭` };
     if (desktop && desktop.keepaliveEnabled === false) return { enabled: false, reason: '该云电脑的【独立保活】开关已关闭' };
     return { enabled: true, reason: '' };
   }
@@ -3192,54 +3179,6 @@ class CtYunClient {
 }
 
 const clientInstances = new Map();
-
-// ----------------------------------------------------------
-// 移动公众（ecloud）账号默认开关
-// ----------------------------------------------------------
-// L1/L2 默认开。【2026-09-26 用户拍板】L3（SPICE 心跳）从未实现，整层删除（UI 到底层）。
-function buildEcloudDefaultFeatures() {
-  return {
-    keepAlive: true,              // 账号级保活总开关（与另两平台同名同义，但账号存储各自独立）
-    ecloudL1AccountKeep: true,    // L1 账号态保活
-    ecloudL2DesktopReg: true,     // L2 桌面登记保活
-    // 【2026-09-28 用户拍板】平台存在约 48 小时强制关机策略，自动开机守护**默认开启**
-    // （拦不住强制关机就自动恢复）；不需要的用户可显式关闭。
-    autoBoot: true
-  };
-}
-
-// ----------------------------------------------------------
-// 移动公众「两段式登录」的待定会话表
-// ----------------------------------------------------------
-// 移动公众登录可能要求短信验证码（设备信任 / 双因素 / 增强短信），后台无法代答。
-// 这里暂存"已登录一半"的会话（会话本体在 Python 侧车内），等验证码回来接着完成。
-const pendingEcloudLogins = new Map();
-const ECLOUD_PENDING_TTL_MS = 15 * 60 * 1000;
-
-function registerPendingEcloudLogin(id, entry) {
-  const now = Date.now();
-  for (const [k, v] of pendingEcloudLogins) {
-    if (now - v.createdAt > ECLOUD_PENDING_TTL_MS) {
-      try { v.client.stop(v.force === true); } catch (e) { /* 过期清理不抛 */ }
-      pendingEcloudLogins.delete(k);
-    }
-  }
-  pendingEcloudLogins.set(id, { ...entry, createdAt: now });
-}
-
-/**
- * 把"已通过认证的草稿账号"正式落库，并**复用**已经建立会话的客户端实例
- * （若重新 getClient 会拉起第二个侧车进程，会话就丢了 → 又要重新登录并可能再要验证码）。
- */
-function finalizeEcloudAccount(acc, client) {
-  appConfig.accounts.push(acc);
-  client.account = acc;
-  client.sessionId = acc.id;
-  clientInstances.set(acc.id, client);
-  saveConfig(appConfig);
-  client.startKeepAliveWorker();
-  return acc;
-}
 
 function getClient(acc) {
   if (!acc || !acc.id) return null;
@@ -6146,12 +6085,8 @@ module.exports = {
   server,
   taskScheduler,
   initAllKeepAlive,
-  // 【2026-09-24】导出权威开关解析与平台归属判定，供回归网做**行为断言**
-  // （此前只能做静态文本断言；导出后可直接真实调用，防止"长得像但语义错了"）。
   resolveTaskEnabled,
   TASK_FEATURE_KEY,
   TASK_CN_NAME,
-  ECLOUD_KEEPALIVE_TASKS,
-  buildEcloudDefaultFeatures,
   inferLogPlatform
 };
